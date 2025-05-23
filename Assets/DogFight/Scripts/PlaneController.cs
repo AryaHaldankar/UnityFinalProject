@@ -35,9 +35,9 @@ public class PlaneController : Vehicle // INHERITANCE
 
         PerformRotation();
 
-        move();
+        Move();
         
-        if (shoot && shooting == false)
+        if (Input.GetKey(KeyCode.Space) && shooting == false)
         {
             InvokeRepeating("shootBullet", 0f, 0.1f);
             shooting = true;
@@ -49,7 +49,7 @@ public class PlaneController : Vehicle // INHERITANCE
         }
     }
 
-    override void move() // POLYMORPHISM
+    protected override void Move() // POLYMORPHISM
     {
         float distanceX = dynamicHorizontalAngle / maxHorizontal * movementSpeed * Time.deltaTime;
         float distanceY = dynamicVerticalAngle / maxVertical * movementSpeed * Time.deltaTime;

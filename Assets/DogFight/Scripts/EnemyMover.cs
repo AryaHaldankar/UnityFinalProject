@@ -29,10 +29,10 @@ public class EnemyMover : Vehicle // INHERITANCE
             frames += 1;
         }
 
-        move();
+        Move();
     }
 
-    override void move() // POLYMORPHISM
+    protected override void Move() // POLYMORPHISM
     {
         Vector3 newDims = new Vector3(-horizontalInput, verticalInput, 0f) * movementSpeed * Time.deltaTime + transform.position;
         Vector3 newDimsClamped = new Vector3(Mathf.Clamp(newDims.x, -horizontalBound, horizontalBound), Mathf.Clamp(newDims.y, -verticalBound, verticalBound), 0f);

@@ -753,7 +753,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b4663ddf8174414cd9cfcf3e62030fb7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  movementSpeed: 200
   bulletCount: 500
   horizontalRotationSpeed: 10
   verticalRotationSpeed: 15
@@ -925,6 +924,10 @@ PrefabInstance:
     - target: {fileID: 400002, guid: 82bd07754e7234e0e9c233e057021896, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8646581924667493452, guid: 82bd07754e7234e0e9c233e057021896, type: 3}
+      propertyPath: movementSpeed
+      value: 100
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
