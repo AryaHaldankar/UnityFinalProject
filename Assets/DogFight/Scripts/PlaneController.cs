@@ -1,8 +1,7 @@
 using UnityEngine;
 
-public class PlaneController : MonoBehaviour
+public class PlaneController : Vehicle // INHERITANCE
 {
-    public float movementSpeed;
     [SerializeField] private int bulletCount = 500;
     private RaycastHit[] hits;
     public float horizontalRotationSpeed;
@@ -32,38 +31,50 @@ public class PlaneController : MonoBehaviour
     }
     void Update()
     {
-        float verticalInput = -Input.GetAxis("Vertical");
-        float horizontalInput = -Input.GetAxis("Horizontal");
-        bool shoot = Input.GetKey(KeyCode.Space);
+        HandleInput();
 
-        dynamicHorizontalAngle -= horizontalInput * horizontalRotationSpeed * Time.deltaTime;
-        dynamicVerticalAngle -= verticalInput * verticalRotationSpeed * Time.deltaTime;
-        dynamicTilt += horizontalInput * tiltSpeed * Time.deltaTime;
+        PerformRotation();
 
-        //CLAMP ANGLE
+        move();
+        
+        if (shoot && shooting == false)
+        {
+            InvokeRepeating("shootBullet", 0f, 0.1f);
+            shooting = true;
+        }
+        else if (Input.GetKey(KeyCode.Space) == false && shooting)
+        {
+            shooting = false;
+            CancelInvoke("shootBullet");
+        }
+    }
+
+    override void move() // POLYMORPHISM
+    {
+        float distanceX = dynamicHorizontalAngle / maxHorizontal * movementSpeed * Time.deltaTime;
+        float distanceY = dynamicVerticalAngle / maxVertical * movementSpeed * Time.deltaTime;
+
+        transform.Translate(new Vector3(distanceX, distanceY, 0f));
+        transform.Translate(new Vector3(0f, 0f, initialZ - transform.position.z));
+    }
+
+    void PerformRotation() // ABSTRACTION
+    {
         dynamicHorizontalAngle = Mathf.Clamp(dynamicHorizontalAngle, -maxHorizontal, maxHorizontal);
         dynamicVerticalAngle = Mathf.Clamp(dynamicVerticalAngle, -maxVertical, maxVertical);
         dynamicTilt = Mathf.Clamp(dynamicTilt, -maxTilt, maxTilt);
 
-        //distance translation
-        float distanceX = dynamicHorizontalAngle / maxHorizontal * movementSpeed * Time.deltaTime;
-        float distanceY = dynamicVerticalAngle / maxVertical * movementSpeed * Time.deltaTime;
-
-
-
         transform.localRotation = Quaternion.Euler(-dynamicVerticalAngle, dynamicHorizontalAngle, dynamicTilt);
-        transform.Translate(new Vector3(distanceX, distanceY, 0f));
-        
+    }
 
-        transform.Translate(new Vector3(0f, 0f, initialZ - transform.position.z));
-        if(shoot && shooting == false){
-            InvokeRepeating("shootBullet", 0f, 0.1f);
-            shooting = true;
-        }
-        else if(shoot == false && shooting){
-            shooting = false;
-            CancelInvoke("shootBullet");
-        }
+    void HandleInput() // ABSTRACTION
+    {
+        float verticalInput = -Input.GetAxis("Vertical");
+        float horizontalInput = -Input.GetAxis("Horizontal");
+
+        dynamicHorizontalAngle -= horizontalInput * horizontalRotationSpeed * Time.deltaTime;
+        dynamicVerticalAngle -= verticalInput * verticalRotationSpeed * Time.deltaTime;
+        dynamicTilt += horizontalInput * tiltSpeed * Time.deltaTime;
     }
 
     void shootBullet(){
