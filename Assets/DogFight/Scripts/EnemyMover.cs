@@ -11,6 +11,9 @@ public class EnemyMover : Vehicle // INHERITANCE
     private float horizontalBound = 200f;
     private int frames = 0;
     private Vector3 initialPos;
+    [SerializeField] private AudioClip crashClip;
+    [SerializeField] private GameObject enemy;
+    [SerializeField] private ParticleSystem explosion;
     void Start()
     {
         initialPos = transform.position;
@@ -46,7 +49,7 @@ public class EnemyMover : Vehicle // INHERITANCE
     {
         float flip = Random.Range(-1f, 1f);
         flip = flip == 0f ? 0f : (flip < 0f ? -1 : 1);
-        
+
         if (flip < 0)
         {
             horizontalInput = 0;
@@ -59,7 +62,22 @@ public class EnemyMover : Vehicle // INHERITANCE
             horizontalInput = Random.Range(-1f, 1f); // A/D or Left/Right
             horizontalInput = horizontalInput == 0f ? 0f : (horizontalInput < 0f ? -1 : 1);
         }
-        
+
         transform.localRotation = Quaternion.Euler(-verticalInput * verticalAngle, 0f, horizontalInput * horizontalAngle);
+    }
+
+    void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("Bullet"))
+        {
+            GameObject newEnemy = Instantiate(enemy, new Vector3(0, 0, 300), Quaternion.identity);
+            newEnemy.name = "Enemy";
+
+            ParticleSystem expl = Instantiate(explosion, transform.position, Quaternion.identity);
+            expl.Play();
+
+            SoundFXManager.instance.playSoundFXClip(crashClip, transform, 1f);
+            Destroy(gameObject);
+        }
     }
 }

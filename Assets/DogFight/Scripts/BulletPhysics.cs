@@ -1,30 +1,29 @@
 using UnityEngine;
+using System.Collections;
 
 public class BulletPhysics : MonoBehaviour
 {
-    public float movementSpeed;
-    // private RayCastHit[] hits;
+    [SerializeField] private float movementSpeed = 1000f;
     // private Rigidbody rb;
-    private int frames = 0;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         // rb = GetComponent<Rigidbody>();
+        // StartCoroutine(DestroyBullet());
     }
 
-    void Update(){
+    void Update()
+    {
         transform.Translate(transform.forward * movementSpeed * Time.deltaTime);
-        if(frames >= 90)
-            Destroy(gameObject);
-        frames += 1;
     }
 
-    // Update is called once per frame
+    // IEnumerator DestroyBullet()
+    // {
+    //     yield return new WaitForSeconds(1f);
+    //     Destroy(gameObject);
+    // }
     // void FixedUpdate()
     // {
-    //     if(frames >= 90)
-    //         Destroy(gameObject);
-    //     frames += 1;
     //     rb.MovePosition(rb.position + transform.forward * movementSpeed * Time.fixedDeltaTime);
     // }
 }

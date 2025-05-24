@@ -3,7 +3,7 @@ using UnityEngine;
 public class PlaneController : Vehicle // INHERITANCE
 {
     [SerializeField] private int bulletCount = 500;
-    private RaycastHit[] hits;
+    // private RaycastHit[] hits;
     public float horizontalRotationSpeed;
     public float verticalRotationSpeed;
     public float tiltSpeed;
@@ -13,9 +13,9 @@ public class PlaneController : Vehicle // INHERITANCE
     [SerializeField] private AudioClip backgroundNoise;
     [SerializeField] private AudioClip emptyBullet;
     [SerializeField] private AudioClip playerOutSound;
-    public GameObject bullet;
+    // public GameObject bullet;
     
-    public GameObject enemy;
+    // public GameObject enemy;
     public float maxVertical;
     public float maxHorizontal;
     public float maxTilt;
@@ -79,12 +79,13 @@ public class PlaneController : Vehicle // INHERITANCE
 
     void shootBullet(){
         if(bulletCount >= 1){
-            hits = Physics.RaycastAll(transform.position, transform.forward, 500f);
-            foreach(RaycastHit hit in hits){
-                if(hit.collider.name == "Enemy")
-                    Invoke("DestroyRoutine", hit.distance / 500);
-            }
-            Instantiate(bullet, transform.position, transform.rotation);
+            // hits = Physics.RaycastAll(transform.position, transform.forward, 500f);
+            // foreach(RaycastHit hit in hits){
+            //     if(hit.collider.name == "Enemy")
+            //         Invoke("DestroyRoutine", hit.distance / 1000);
+            // }
+            // Instantiate(bullet, transform.position, transform.rotation);
+            BulletPooler.Instance.SpawnBullet(transform);
             SoundFXManager.instance.playSoundFXClip(bulletFired, transform, 1f);
             bulletCount -= 1;
         }
@@ -92,13 +93,13 @@ public class PlaneController : Vehicle // INHERITANCE
             SoundFXManager.instance.playSoundFXClip(emptyBullet, transform, 1f);
     }
 
-    void DestroyRoutine(){
-        GameObject currentEnemy = GameObject.FindGameObjectWithTag("Enemy");
-        SoundFXManager.instance.playSoundFXClip(crashClip, currentEnemy.transform, 1f);
-        Destroy(currentEnemy);
-        GameObject newEnemy = Instantiate(enemy, new Vector3(0, 0, 300), Quaternion.identity);
-        newEnemy.name = "Enemy";
-    }
+    // void DestroyRoutine(){
+    //     GameObject currentEnemy = GameObject.FindGameObjectWithTag("Enemy");
+    //     SoundFXManager.instance.playSoundFXClip(crashClip, currentEnemy.transform, 1f);
+    //     Destroy(currentEnemy);
+    //     GameObject newEnemy = Instantiate(enemy, new Vector3(0, 0, 300), Quaternion.identity);
+    //     newEnemy.name = "Enemy";
+    // }
 
     void OnTriggerEnter(Collider other){
         if(other.CompareTag("Boundary")){
