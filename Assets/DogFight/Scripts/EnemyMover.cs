@@ -12,27 +12,39 @@ public class EnemyMover : Vehicle // INHERITANCE
     private int frames = 0;
     private Vector3 initialPos;
     [SerializeField] private AudioClip crashClip;
-    [SerializeField] private GameObject enemy;
     [SerializeField] private ParticleSystem explosion;
+    [SerializeField] private ParticleSystem fire;
+    [SerializeField] private bool hitOnce;
+    [SerializeField] private bool goingDown;
     void Start()
     {
+        fire.gameObject.SetActive(false);
+        hitOnce = false;
+        goingDown = false;
         initialPos = transform.position;
         verticalBound = transform.position.x + verticalBound;
         horizontalBound = transform.position.y + horizontalBound;
     }
     void Update()
     {
-        if (frames >= 60)
+        if (goingDown)
         {
-            HandleRotation();
-            frames = 0;
+            transform.Translate(Vector3.down * movementSpeed * Time.deltaTime);
         }
         else
         {
-            frames += 1;
-        }
+            if (frames >= 180)
+            {
+                HandleRotation();
+                frames = 0;
+            }
+            else
+            {
+                frames += 1;
+            }
 
-        Move();
+            Move();
+        }
     }
 
     protected override void Move() // POLYMORPHISM
@@ -68,15 +80,25 @@ public class EnemyMover : Vehicle // INHERITANCE
 
     void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Bullet"))
+        if (other.CompareTag("Bullet") && !hitOnce)
         {
-            GameObject newEnemy = Instantiate(enemy, new Vector3(0, 0, 300), Quaternion.identity);
-            newEnemy.name = "Enemy";
-
-            ParticleSystem expl = Instantiate(explosion, transform.position, Quaternion.identity);
-            expl.Play();
+            hitOnce = true;
+            fire.gameObject.SetActive(true);
+        }
+        else if (other.CompareTag("Bullet") && hitOnce)
+        {
+            goingDown = true;
+            transform.localRotation = Quaternion.Euler(-1 * verticalAngle, 0f, 0f);
+        }
+        else if (other.CompareTag("Boundary"))
+        {
+            ParticleSystem explodeObj = Instantiate(explosion, transform.position, Quaternion.identity);
+            explodeObj.Play();
+            Destroy(explodeObj.gameObject, explodeObj.main.duration + explodeObj.main.startLifetime.constantMax);
 
             SoundFXManager.instance.playSoundFXClip(crashClip, transform, 1f);
+            
+            GameManager.Instance.PlaneDestroyed();
             Destroy(gameObject);
         }
     }

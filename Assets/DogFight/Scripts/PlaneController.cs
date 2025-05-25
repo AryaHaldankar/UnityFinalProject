@@ -2,8 +2,8 @@ using UnityEngine;
 
 public class PlaneController : Vehicle // INHERITANCE
 {
+    public static PlaneController Instance;
     [SerializeField] private int bulletCount = 500;
-    // private RaycastHit[] hits;
     public float horizontalRotationSpeed;
     public float verticalRotationSpeed;
     public float tiltSpeed;
@@ -13,9 +13,6 @@ public class PlaneController : Vehicle // INHERITANCE
     [SerializeField] private AudioClip backgroundNoise;
     [SerializeField] private AudioClip emptyBullet;
     [SerializeField] private AudioClip playerOutSound;
-    // public GameObject bullet;
-    
-    // public GameObject enemy;
     public float maxVertical;
     public float maxHorizontal;
     public float maxTilt;
@@ -23,11 +20,19 @@ public class PlaneController : Vehicle // INHERITANCE
     private float dynamicVerticalAngle = 0f;
     private float dynamicTilt = 0f;
     private float initialZ;
-    
+    public bool tankEmpty;
+
+    void Awake()
+    {
+        Instance = this;
+    }
+
     void Start()
     {
+        tankEmpty = false;
         initialZ = transform.position.z;
         SoundFXManager.instance.playSoundFX(backgroundNoise, transform, 1f);
+        GameManager.Instance.DisplayBulletCount(bulletCount);
     }
     void Update()
     {
@@ -51,11 +56,22 @@ public class PlaneController : Vehicle // INHERITANCE
 
     protected override void Move() // POLYMORPHISM
     {
-        float distanceX = dynamicHorizontalAngle / maxHorizontal * movementSpeed * Time.deltaTime;
-        float distanceY = dynamicVerticalAngle / maxVertical * movementSpeed * Time.deltaTime;
+        if (tankEmpty)
+        {
+            float distanceX = dynamicHorizontalAngle / maxHorizontal * movementSpeed * Time.deltaTime;
+            float distanceY = dynamicVerticalAngle / maxVertical * movementSpeed * Time.deltaTime;
 
-        transform.Translate(new Vector3(distanceX, distanceY, 0f));
-        transform.Translate(new Vector3(0f, 0f, initialZ - transform.position.z));
+            transform.Translate(new Vector3(distanceX, -Mathf.Abs(distanceY), 0f));
+            transform.Translate(new Vector3(0f, 0f, initialZ - transform.position.z));
+        }
+        else
+        {
+            float distanceX = dynamicHorizontalAngle / maxHorizontal * movementSpeed * Time.deltaTime;
+            float distanceY = dynamicVerticalAngle / maxVertical * movementSpeed * Time.deltaTime;
+
+            transform.Translate(new Vector3(distanceX, distanceY, 0f));
+            transform.Translate(new Vector3(0f, 0f, initialZ - transform.position.z));
+        }
     }
 
     void PerformRotation() // ABSTRACTION
@@ -78,34 +94,23 @@ public class PlaneController : Vehicle // INHERITANCE
     }
 
     void shootBullet(){
-        if(bulletCount >= 1){
-            // hits = Physics.RaycastAll(transform.position, transform.forward, 500f);
-            // foreach(RaycastHit hit in hits){
-            //     if(hit.collider.name == "Enemy")
-            //         Invoke("DestroyRoutine", hit.distance / 1000);
-            // }
-            // Instantiate(bullet, transform.position, transform.rotation);
+        if (bulletCount >= 1)
+        {
             BulletPooler.Instance.SpawnBullet(transform);
             SoundFXManager.instance.playSoundFXClip(bulletFired, transform, 1f);
             bulletCount -= 1;
+            GameManager.Instance.DisplayBulletCount(bulletCount);
         }
         else
             SoundFXManager.instance.playSoundFXClip(emptyBullet, transform, 1f);
     }
 
-    // void DestroyRoutine(){
-    //     GameObject currentEnemy = GameObject.FindGameObjectWithTag("Enemy");
-    //     SoundFXManager.instance.playSoundFXClip(crashClip, currentEnemy.transform, 1f);
-    //     Destroy(currentEnemy);
-    //     GameObject newEnemy = Instantiate(enemy, new Vector3(0, 0, 300), Quaternion.identity);
-    //     newEnemy.name = "Enemy";
-    // }
-
     void OnTriggerEnter(Collider other){
-        if(other.CompareTag("Boundary")){
-            SoundFXManager.instance.playSoundFXClip(playerOutSound, transform, 1f);
-            transform.position = new Vector3(0, 0, 0);
-            transform.rotation = Quaternion.identity;
+        if (other.CompareTag("Boundary"))
+        {
+            SoundFXManager.instance.playSoundFXClip(crashClip, transform, 1f);
+            GameManager.Instance.GameOver();
+            Destroy(gameObject);
         }
     }
 }
