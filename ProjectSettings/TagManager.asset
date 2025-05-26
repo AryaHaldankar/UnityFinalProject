@@ -8,6 +8,8 @@ TagManager:
   - Terrain
   - Bullet
   - Enemy
+  - Fuel
+  - Ammo
   layers:
   - Default
   - TransparentFX

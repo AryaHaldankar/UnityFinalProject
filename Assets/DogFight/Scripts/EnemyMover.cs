@@ -11,7 +11,6 @@ public class EnemyMover : Vehicle // INHERITANCE
     private float horizontalBound = 200f;
     private int frames = 0;
     private Vector3 initialPos;
-    [SerializeField] private AudioClip crashClip;
     [SerializeField] private ParticleSystem explosion;
     [SerializeField] private ParticleSystem fire;
     [SerializeField] private bool hitOnce;
@@ -96,7 +95,7 @@ public class EnemyMover : Vehicle // INHERITANCE
             explodeObj.Play();
             Destroy(explodeObj.gameObject, explodeObj.main.duration + explodeObj.main.startLifetime.constantMax);
 
-            SoundFXManager.instance.playSoundFXClip(crashClip, transform, 1f);
+            SoundFXManager.Instance.PlaySoundFXClip("Explosion", transform, 1f);
             
             GameManager.Instance.PlaneDestroyed();
             Destroy(gameObject);

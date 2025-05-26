@@ -31,7 +31,6 @@ public class PlaneController : Vehicle // INHERITANCE
     {
         tankEmpty = false;
         initialZ = transform.position.z;
-        SoundFXManager.instance.playSoundFX(backgroundNoise, transform, 1f);
         GameManager.Instance.DisplayBulletCount(bulletCount);
     }
     void Update()
@@ -97,20 +96,32 @@ public class PlaneController : Vehicle // INHERITANCE
         if (bulletCount >= 1)
         {
             BulletPooler.Instance.SpawnBullet(transform);
-            SoundFXManager.instance.playSoundFXClip(bulletFired, transform, 1f);
+            SoundFXManager.Instance.PlaySoundFXClip("GunFire", transform, 1f);
             bulletCount -= 1;
             GameManager.Instance.DisplayBulletCount(bulletCount);
         }
         else
-            SoundFXManager.instance.playSoundFXClip(emptyBullet, transform, 1f);
+            SoundFXManager.Instance.PlaySoundFXClip("EmptyGunClick", transform, 1f);
     }
 
-    void OnTriggerEnter(Collider other){
+    void OnTriggerEnter(Collider other)
+    {
         if (other.CompareTag("Boundary"))
         {
-            SoundFXManager.instance.playSoundFXClip(crashClip, transform, 1f);
-            GameManager.Instance.GameOver();
-            Destroy(gameObject);
+            SoundFXManager.Instance.PlaySoundFXClip("Explosion", transform, 1f);
+            GameManager.Instance.PlayerCrashed(transform.position);
+            gameObject.SetActive(false);
+        }
+        else if (other.CompareTag("Fuel"))
+        {
+            Destroy(other.gameObject);
+            GameManager.Instance.AddFuel(50f);
+        }
+        else if (other.CompareTag("Ammo"))
+        {
+            Destroy(other.gameObject);
+            bulletCount += 50;
+            GameManager.Instance.DisplayBulletCount(bulletCount);
         }
     }
 }
